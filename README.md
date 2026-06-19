@@ -1,85 +1,124 @@
-# delivery-acceptance (YANSHOU · 验收)
+<sub>🌐 <b>中文</b> · <a href="README.en.md">English</a></sub>
 
-> 一句话钩子：程序员说"做完了、测试全绿"——你敢直接合并吗？delivery-acceptance 替你做对抗性验收：不只出报告，而是闭环到「发现改进点 → 写 TDD 修复计划 → 派子代理修 → 最终复审」，直到交付可信、可合并。
+<div align="center">
 
-[![Agent Skills](https://img.shields.io/badge/Agent-Skills-blue)]() [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-green)]() [![License](https://img.shields.io/badge/license-MIT-lightgrey)]()
+# delivery-acceptance · YANSHOU（验收）
 
-## 你什么时候需要它？
+> *「"测试全绿"不是验收，是自述。」*
 
-- 程序员（或子代理）执行完一份 TDD/Superpowers 实施计划，宣称"全部完成"——你要在合并前独立核验。
-- 计划的"测试全绿"自述不可信，需要有人以陌生视角对账"计划要求 X，代码里 X 真的有吗"。
-- 交付里藏着只读代码挖不出的边界 bug（如"只有年份"误报、"十岁"解析失败），需要真跑测试 + 写探针才能暴露。
-- 验收完不想止于报告——希望把发现的改进点直接闭环修掉，拿到可合并的最终交付。
+[![Agent Skills](https://img.shields.io/badge/Agent-Skills-blueviolet)](SKILL.md)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-green)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 它会交付什么？
+**superpowers 计划交付后的独立验收闸——假设交付是错的，用探针证明它真假，再闭环修到可合并。**
 
-三件落盘产物 + 一份对话内总结：
+[它解决什么](#它解决什么) · [效果示例](#效果示例) · [快速开始](#快速开始) · [触发方式](#触发方式) · [和同类有什么不同](#和同类有什么不同) · [安全边界](#安全边界)
 
-1. **验收报告** `<计划名>-acceptance-report.md`：三维度（计划完成度 / 代码质量 / Bug 审计）结论 + 证据 + 评分 + 执行者水平评价。
-2. **TDD 改进计划** `<计划名>-polish.md`：每个改进点一个 Fix，先失败测试→改实现→跑绿。
-3. **commit hash 记录**：报告里贴修复提交的 base/head SHA，形成「计划→代码→bug→修复→复审」可审计链。
+</div>
+
+---
+
+## 它解决什么
+
+事情是这样的：你用 superpowers / writing-plans 写了一份 TDD 实施计划，程序员（或子代理）跑完说"全部完成、测试全绿"。**你敢直接合并吗？**
+
+验证证据常常是假的或片面的——"代码看起来绑了事件"替代了真实点击验证、"测试通过"掩盖了边界漏测、"计划要求 X"被悄悄降级成"近似做了 X"。这是 plan-driven 工作流的系统性盲区：**执行者会自我宣称完成，但没人独立对账。**
+
+delivery-acceptance 把"验收"做成一条对抗性流水线：以**不知道计划怎么产生、不知道代码怎么写**的陌生视角，逐 Task 对照计划核实交付，跑真实测试、写探针脚本验证边界，再把发现的缺口闭环修掉。它不是"再 review 一遍"，而是"假设交付是错的，去证明它错"。
+
+> 启动时用 `AskUserQuestion` 一次性问完四个问题（修复策略 / 补充维度 / 提交授权 / 验收深度），然后无人值守跑完整个验收闭环。
+
+---
+
+## 效果示例
+
+> ⚠️ 下表为**结构示例**，展示验收报告的形态，非某次真实运行的精确数字。真实运行产物以你项目里的 `<计划名>-acceptance-report.md` 为准。完整示例见 [`examples/sample-acceptance-report.md`](examples/sample-acceptance-report.md)。
+
+**输入**：「验收这份计划，程序员说做完了」
+
+**执行过程**：抽取计划 Task 清单 → 三维度验收（git log 核对提交↔Task；读核心新文件评质量；跑真实测试 + 写边界探针）→ 探针挖出隐藏缺口 → 写 TDD 改进计划 → 派子代理修复 → 最终复审。
+
+**输出片段**（验收报告节选）：
+
+```
+## 三、Bug 审计：0 个确认功能性 Bug，2 个低风险健壮性缺口
+| 编号 | 严重度 | 位置       | 描述           | 影响           | 状态     |
+|------|--------|------------|----------------|----------------|----------|
+| B7   | 低     | store.mjs:15 | 透传字段不校验 | 外部污染时畸形透传 | 已验证   |
+```
+
+---
 
 ## 快速开始
 
-把 skill 装到 `~/.claude/skills/delivery-acceptance/`，然后：
-
-```
-/delivery-acceptance docs/superpowers/plans/2026-06-19-story-clock-part-a.md
+```bash
+npx skills add wh520-wh/delivery-acceptance-yanshou
 ```
 
-或自然语言：「帮我验收 docs/plans/xxx 这个计划的交付」。
+装完对 Agent 说：
+
+```text
+帮我验收 docs/plans/你的计划文件.md，程序员说做完了
+```
+
+> 也支持手动克隆到 `~/.claude/skills/delivery-acceptance/`。
+
+---
 
 ## 触发方式
 
-用户说出以下任一意图时触发：
-
-- "验收一下这次交付 / 帮我验收 <计划路径>"
+- "验收一下这次交付 / 帮我验收 `<计划路径>`"
 - "程序员说做完了，你核实一下"
 - "这个 plan 执行完了，做一次 acceptance"
 - "审查一下交付质量 / 这次改动有没有 bug"
 - 合并前的最后一道闸
+- 斜杠：`/delivery-acceptance <计划文件路径>`
 
-## 示例
+---
 
-**输入**：「验收 docs/superpowers/plans/2026-06-19-story-clock-part-a.md，程序员说做完了」
+## 它会交付什么
 
-**执行摘要**：
-1. 抽取计划 9 个 Task 的「验收对照表」
-2. 三维度验收：git log 核对 8 提交→Task 一一对应；读 timeline-check.mjs 评代码质量；跑 725 测试全绿 + 写 8 组边界探针
-3. 探针挖出 2 个 P1（"只有年份"误报、time 字段透传不校验）+ 4 个新点
-4. 写成 TDD polish 计划 → 派子代理 TDD 修复 → 最终复审逐 Fix 验证 + 全量回归 731 全绿
-5. 输出报告 + 可合并判定
+三件落盘产物 + 一份对话内总结：
 
-**输出片段**（验收报告）：
-```
-## 三、Bug 审计：0 个确认功能性 Bug，2 个低风险健壮性缺口
-| B7 | 低 | continuity-store.mjs:15 | 透传 time 不校验 | 外部污染时畸形透传 | 已验证 |
-```
+| 产物 | 路径 | 内容 |
+|------|------|------|
+| 验收报告 | `<计划名>-acceptance-report.md` | 三维度结论 + 证据 + 评分 + 执行者水平评价 |
+| TDD 改进计划 | `<计划名>-polish.md` | 每个改进点一个 Fix，先失败测试→改实现→跑绿 |
+| commit 记录 | 报告内贴 base/head SHA | 形成「计划→代码→bug→修复→复审」可审计链 |
 
-## 它和同类有什么不同？
+---
 
-| 维度 | 普通 code-review skill | review-forge | **delivery-acceptance** |
-|------|----------------------|--------------|------------------------|
-| 验收对象 | PR diff | PR diff | **已写好的 TDD 计划 + git 历史** |
-| 维度 | 单维（找 bug） | review→fix→verify | **三维度（完成度+质量+bug）** |
-| 闭环 | 只报告 | fix+verify | **写 polish 计划→派子代理修→复审** |
-| 边界探针 | ❌ | ❌ | **✅ 硬要求** |
-| context-free | 部分 | ✅ | **✅** |
+## 和同类有什么不同
 
-差异化：**三维度验收 × 全闭环 × 必跑探针**——目前没有任何 skill 把"计划完成度 + 代码质量 + Bug 审计"跑完再闭环到改进计划并派子代理执行。
+| 维度 | 普通 code-review skill | review-forge | verify-plan-skill | **delivery-acceptance** |
+|------|----------------------|--------------|-------------------|------------------------|
+| 验收对象 | PR diff | PR diff | 计划项↔diff 对账 | **计划文件 + git 历史** |
+| 维度 | 单维（找 bug） | review→fix→verify | 完成度单维 | **三维度（完成度+质量+bug）** |
+| 闭环 | 只报告 | fix+verify | 只报告 | **写计划→派子代理修→复审** |
+| 边界探针 | ❌ | ❌ | ❌ | **✅ 硬要求** |
+| 决策前置无人值守 | ❌ | ❌ | ❌ | **✅ Step 0 一次性问完** |
+| 保护既有契约 | — | 部分 | — | **✅ 原则明写** |
+| API Key | — | — | — | **✅ 零 Key** |
+
+差异化：**三维度验收 × 必跑探针 × 全闭环 × 零 Key**——这条细分赛道目前是草创期、无王者，没有任何 skill 把"计划完成度 + 代码质量 + Bug 审计"跑完再闭环到改进计划并派子代理执行。
+
+---
 
 ## 安全边界
 
-- 只读核验 + 在用户授权后才派子代理修复（不擅自自动重写交付）。
-- 子代理只能改 polish 计划列出的文件，禁止 `git reset --hard`、`force push`、合并默认分支、打 tag——这些都要祈使句授权。
+- 只读核验；修复必须在 Step 0 授权后才派子代理，不擅自重写交付。
+- 子代理只能改 polish 计划列出的文件，禁止 `git reset --hard`、`force push`、合并默认分支、打 tag——这些要祈使句授权。
 - 修复用显式 `git add <文件>`，不把工作树垃圾塞进提交。
+- 探针脚本跑完即删，不污染被测项目。
 - 不泄露 API key、私有路径、个人配置。
+
+---
 
 ## 文件结构
 
 ```
 delivery-acceptance/
-├── SKILL.md                              # 主指令（七步工作流 + 核心原则）
+├── SKILL.md                              # 主指令：八步工作流 + 7 条核心原则
 ├── README.md                             # 本文件
 ├── references/
 │   ├── acceptance-dimensions.md          # 三维度检查清单与探针套路
@@ -87,15 +126,31 @@ delivery-acceptance/
 │   ├── polish-plan-format.md             # TDD polish 计划 Fix 模板
 │   └── dispatch-fix-subagent.md          # 派修复子代理 prompt + 降级 + 诚实披露核查
 ├── scripts/
-│   └── probe-template.mjs                # 边界探针起手模板
+│   └── probe-template.mjs                # 边界探针起手模板（通用）
+├── examples/
+│   └── sample-acceptance-report.md       # 验收报告结构示例（明标示例，非真实运行）
 └── evals/
     └── evals.json                        # 测试 prompt
 ```
 
+---
+
 ## 验证与测试
 
-见 `evals/evals.json`：3 个真实测试 prompt，对比 with-skill vs baseline（无 skill）。核心断言：是否跑了真实测试、是否写了探针、是否产出三件落盘产物、是否闭环到修复。
+见 `evals/evals.json`：3 个测试 prompt，覆盖全闭环验收、缺计划路径要问、子代理不可用降级。合格表现：真跑 `node --test`、写边界探针、产出三件落盘产物、闭环到修复而非止于报告。
+
+> 诚实声明：当前 evals 为 dry_run 设计态，尚未附完整 with-skill vs baseline 对照回放产物。补齐真实回放是下一轮迭代入口（见仓库 Issues）。
+
+---
+
+## 致谢
+
+- 方法论建立在 [obra/superpowers](https://github.com/obra/superpowers) 的 writing-plans / TDD 工作流之上。
+- 闭环形态借鉴 [vikingmute/review-forge](https://github.com/vikingmute/review-forge) 的 review→fix→verify 思路。
+- 同行生态调研参考 [datastone-inc/verify-plan-skill](https://github.com/datastone-inc/verify-plan-skill)（"幻象完成"）、[avelikiy/great_cto](https://github.com/avelikiy/great_cto)（对抗式验收）。
+
+---
 
 ## License
 
-MIT
+[MIT](LICENSE)

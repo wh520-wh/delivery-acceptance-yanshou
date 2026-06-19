@@ -1,4 +1,4 @@
-// 边界探针起手模板
+// 边界探针起手模板（通用版）
 //
 // 用法（两种）：
 //   1. 内联（推荐，临时性）：
@@ -12,25 +12,27 @@ import assert from "node:assert/strict";
 // 按实际项目改 import 路径：
 // import { targetFunction } from "./src/core/target.mjs";
 
+// 探针套路（通用，按项目实际改输入与断言）：
+
 // === 探针 1：边界输入（计划测试没覆盖的中间态）===
-// 例：验证 "只有年份" 是否误判
-// const r = targetFunction("2021年");
-// console.log("只有年份 comparable:", r.comparable, "(预期 false)");
-// assert.equal(r.comparable, false, "只有年份不应参与裁决");
+// 例：验证某解析函数对"只给部分字段"是否误判
+// const r = targetFunction({ only: "partial" });
+// console.log("部分输入 结果:", r.someFlag, "(预期 false)");
+// assert.equal(r.someFlag, false, "部分输入不应判为有效");
 
-// === 探针 2：状态序列（倒退后又继续，基准是否被污染）===
+// === 探针 2：状态序列（倒退/乱序后，基准是否被污染）===
 // 例：构造倒退序列，看后续判断是否相对正确基准
-// const seq = [an(3, "2021年3月10日"), an(5, "2021年3月5日"), an(7, "2021年3月8日")];
-// console.log("倒退序列:", JSON.stringify(checkTimeline(seq).violations.map(v => ({ ch: v.chapter_no, prior: v.prior_chapter }))));
+// const seq = [make(3), make(1), make(2)];
+// console.log("乱序序列:", JSON.stringify(check(seq).violations));
 
-// === 探针 3：乱序输入（排序假设是否成立）===
-// const unordered = [an(5, "..."), an(3, "...")];
-// console.log("乱序:", JSON.stringify(checkTimeline(unordered).violations));
-
-// === 探针 4：畸形透传（旧数据/外部污染是否一路透传）===
+// === 探针 3：畸形透传（旧数据/外部污染是否一路透传到下游）===
 // 构造畸形字段，喂下游，看不崩 + 看是否被静默降级
 
-// === 探针 5：同章重复（是否重复累加/重复比较）===
+// === 探针 4：空值/非法输入（null / undefined / 空串 / 超大数字）===
+// const r = targetFunction(null);
+// console.log("null 输入:", r);  // 期望不崩 + 合理降级
+
+// === 探针 5：重复输入（同 key 多次是否重复累加/重复比较）===
 
 // === 探针 6：依赖方向（grep 核查无循环依赖，在 shell 里跑）===
 //   grep -n "import" src/core/A.mjs  →  A 依赖谁
