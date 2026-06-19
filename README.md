@@ -32,7 +32,7 @@ delivery-acceptance 把"验收"做成一条对抗性流水线：以**不知道�
 
 ## 效果示例
 
-> ⚠️ 下表为**结构示例**，展示验收报告的形态，非某次真实运行的精确数字。真实运行产物以你项目里的 `<计划名>-acceptance-report.md` 为准。完整示例见 [`examples/sample-acceptance-report.md`](examples/sample-acceptance-report.md)。
+> 下表为验收报告的结构形态。真实运行产物以你项目里的 `<计划名>-acceptance-report.md` 为准。结构示例见 [`examples/sample-acceptance-report.md`](examples/sample-acceptance-report.md)，**真实闭环案例**（脱敏）见 [`examples/real-loop-case-b1.md`](examples/real-loop-case-b1.md)。
 
 **输入**：「验收这份计划，程序员说做完了」
 
@@ -128,7 +128,8 @@ delivery-acceptance/
 ├── scripts/
 │   └── probe-template.mjs                # 边界探针起手模板（通用）
 ├── examples/
-│   └── sample-acceptance-report.md       # 验收报告结构示例（明标示例，非真实运行）
+│   ├── sample-acceptance-report.md       # 验收报告结构示例（明标示例，非真实运行）
+│   └── real-loop-case-b1.md              # 真实闭环案例（脱敏）：探针挖 B1 + 保护契约 + 731→733
 └── evals/
     └── evals.json                        # 测试 prompt
 ```
@@ -139,7 +140,7 @@ delivery-acceptance/
 
 见 `evals/evals.json`：3 个测试 prompt，覆盖全闭环验收、缺计划路径要问、子代理不可用降级。合格表现：真跑 `node --test`、写边界探针、产出三件落盘产物、闭环到修复而非止于报告。
 
-> 诚实声明：当前 evals 为 dry_run 设计态，尚未附完整 with-skill vs baseline 对照回放产物。补齐真实回放是下一轮迭代入口（见仓库 Issues）。
+**真实闭环案例**：[`examples/real-loop-case-b1.md`](examples/real-loop-case-b1.md) 记录了一次真实验收——探针挖出既有 731 测试挖不到的 B1（混合粒度日期误报），修复时守住 `comparable` 契约（对比 baseline 改契约引入回归的做法），TDD 红绿，全量回归 731→733 全绿。这条"探针证明交付有假 → 保护契约修复 → 复审全绿"的链路是 skill 价值的核心实证。
 
 ---
 
