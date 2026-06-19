@@ -12,6 +12,10 @@
 
 **superpowers 计划交付后的独立验收闸——假设交付是错的，用探针证明它真假，再闭环修到可合并。**
 
+![三维度验收](https://img.shields.io/badge/亮点-三维度验收-blue) ![必跑探针](https://img.shields.io/badge/亮点-必跑探针-orange) ![全闭环修复](https://img.shields.io/badge/亮点-全闭环修复-red) ![零Key](https://img.shields.io/badge/亮点-零Key-success) ![无人值守](https://img.shields.io/badge/亮点-无人值守-9cf)
+
+> 同类 skill 只在 PR diff 上 review；本 skill 拿**已写好的计划 + 交付代码**逐 Task 对账，用探针挖出"测试全绿"掩盖的隐藏 bug，再闭环修到可合并。
+
 [它解决什么](#它解决什么) · [效果示例](#效果示例) · [快速开始](#快速开始) · [触发方式](#触发方式) · [和同类有什么不同](#和同类有什么不同) · [安全边界](#安全边界)
 
 </div>
