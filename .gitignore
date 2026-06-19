@@ -17,3 +17,4 @@ Thumbs.db
 
 # 临时探针
 /tmp-probe*.mjs
+.gstack/
