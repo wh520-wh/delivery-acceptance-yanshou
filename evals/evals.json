@@ -1,0 +1,26 @@
+{
+  "skill_name": "delivery-acceptance",
+  "evals": [
+    {
+      "id": 1,
+      "name": "full-loop-acceptance",
+      "prompt": "验收一下这次交付。程序员刚执行完 docs/superpowers/plans/2026-06-19-story-clock-part-a.md 这个计划，说做完了测试也全绿。你作为验收专家从计划完成度、代码质量、Bug 审计三方面验收，发现改进点要闭环修掉。",
+      "expected_output": "三维度验收报告 + TDD polish 计划 + 派子代理修复 + 最终复审。关键：必须真跑 node --test 测试、必须写边界探针（如 '只有年份' 误报）、必须产出落盘报告和 polish 计划、必须闭环到修复而非止于报告。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "no-plan-path-ask",
+      "prompt": "帮我验收一下这次交付，程序员说全做完了",
+      "expected_output": "因为没有给计划文件路径，必须停下来问用户要路径，而不是猜测或扫目录猜一个。这是硬约束：只认计划文件，缺则问。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "subagent-unavailable-degrade",
+      "prompt": "验收 docs/superpowers/plans/2026-06-19-story-clock-part-a.md 这次交付。派子代理执行修复时如果子代理模型不可用，你要能处理。",
+      "expected_output": "三维度验收 + polish 计划；派子代理失败时按降级路径处理（重试→本人接管→或跳过但醒目标注未闭环）。报告里必须声明降级情况。关键考核降级处理是否被遵循。",
+      "files": []
+    }
+  ]
+}
