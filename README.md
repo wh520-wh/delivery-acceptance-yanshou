@@ -8,18 +8,18 @@
 - 合并前核实“计划完成度 / 代码质量 / Bug 风险”。
 - 用户说 `/delivery-acceptance`、`/YANSHOU`、`验收一下 docs/.../plan.md`。
 
-## 新输出契约
+## 输出契约
 
-验收报告是 report，不是 plan。
+报告是 report，不是 plan；修完的事写进报告，不补写事后 TDD 计划。
 
 | 场景 | 输出 |
 |---|---|
 | 无问题 | `docs/superpowers/reports/<plan-slug>-acceptance-report.md` |
-| 有问题且已顺手修复 | 只写 acceptance report，在报告里记录修复和复验证据 |
-| 用户指明先不修复 | acceptance report + `docs/superpowers/plans/<plan-slug>-fix-plan.md` |
-| 问题太大/高风险 | 停下问用户，按用户选择修复或写 fix plan |
+| 有问题，已顺手修复 | 只写 acceptance report，记录修复摘要 + 复验证据 |
+| 有问题，先不修复 | acceptance report + `docs/superpowers/plans/<plan-slug>-fix-plan.md` |
+| 问题太大/高风险 | 停下问用户，按选择修复或写 fix plan |
 
-不要把验收结论放进 `plans/`。不要在已经修完后再补写事后 TDD 计划。
+不要把验收结论放进 `plans/`。
 
 ## 开局必须问
 
