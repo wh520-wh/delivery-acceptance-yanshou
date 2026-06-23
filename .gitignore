@@ -18,3 +18,6 @@ Thumbs.db
 # 临时探针
 /tmp-probe*.mjs
 .gstack/
+
+# AI 协作痕迹（本地 Claude Code 设置，不入仓库）
+.claude/

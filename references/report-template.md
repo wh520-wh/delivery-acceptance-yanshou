@@ -1,6 +1,6 @@
 # 验收报告模板
 
-> 落盘到 `docs/superpowers/reports/<计划名>-acceptance-report.md`。验收报告是 report，不是 plan；不要放进 `plans/` 目录。
+> 落盘到 `docs/superpowers/reports/<计划名>-acceptance-report.md`。
 
 ```markdown
 # <计划名> 验收报告
